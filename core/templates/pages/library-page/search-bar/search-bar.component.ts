@@ -32,6 +32,9 @@ import {ConstructTranslationIdsService} from 'services/construct-translation-ids
 import {LanguageUtilService} from 'domain/utilities/language-util.service';
 import {TranslateService} from '@ngx-translate/core';
 import './search-bar.component.css';
+import {SearchBarFiltersModalComponent} from './search-bar-filters-modal.component';
+import cloneDeep from 'lodash/cloneDeep';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 
 interface SearchDropDownCategories {
   id: string;
@@ -69,6 +72,7 @@ export class SearchBarComponent implements OnInit, OnDestroy {
   translationData: Record<string, number> = {};
   activeMenuName: string = '';
   @Input() enableDropup: boolean = false;
+  @Input() enableFilters: boolean = false;
 
   constructor(
     private i18nLanguageCodeService: I18nLanguageCodeService,
@@ -80,7 +84,8 @@ export class SearchBarComponent implements OnInit, OnDestroy {
     private classroomBackendApiService: ClassroomBackendApiService,
     private languageUtilService: LanguageUtilService,
     private constructTranslationIdsService: ConstructTranslationIdsService,
-    private translateService: TranslateService
+    private translateService: TranslateService,
+    private ngbModal: NgbModal
   ) {
     this.classroomPageIsActive = this.urlService
       .getPathname()
@@ -89,7 +94,7 @@ export class SearchBarComponent implements OnInit, OnDestroy {
   }
 
   isMobileViewActive(): boolean {
-    return this.windowDimensionsService.getWidth() <= 766;
+    return this.windowDimensionsService.getWidth() <= 1150;
   }
 
   isSearchButtonActive(): boolean {
@@ -366,6 +371,25 @@ export class SearchBarComponent implements OnInit, OnDestroy {
       this.classroomBackendApiService.onInitializeTranslation.subscribe(() =>
         this.refreshSearchBarLabels()
       )
+    );
+  }
+
+  openFilterModal(type: string): void {
+    const modalRef = this.ngbModal.open(SearchBarFiltersModalComponent, {
+      backdrop: 'static',
+      size: 'lg',
+    });
+    modalRef.componentInstance.selectionDetails = cloneDeep(
+      this.selectionDetails
+    );
+    modalRef.componentInstance.filterOption = type;
+    modalRef.result.then(
+      ({filterType, updatedFilters}) => {
+        this.selectionDetails = updatedFilters;
+        this.updateSelectionDetails(filterType);
+        this.onSearchQueryChangeExec();
+      },
+      () => {}
     );
   }
 

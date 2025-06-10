@@ -33,6 +33,12 @@ import {ConstructTranslationIdsService} from 'services/construct-translation-ids
 import {LanguageUtilService} from 'domain/utilities/language-util.service';
 import {UrlService} from 'services/contextual/url.service';
 import {Subject} from 'rxjs/internal/Subject';
+import {MatCardModule} from '@angular/material/card';
+import {MatCheckboxModule} from '@angular/material/checkbox';
+import cloneDeep from 'lodash/cloneDeep';
+import {fakeAsync, flushMicrotasks} from '@angular/core/testing';
+import {SearchBarFiltersModalComponent} from './search-bar-filters-modal.component';
+import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 
 @Pipe({name: 'truncate'})
 class MockTrunctePipe {
@@ -113,7 +119,12 @@ describe('Search bar component', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule, FormsModule],
+      imports: [
+        HttpClientTestingModule,
+        FormsModule,
+        MatCardModule,
+        MatCheckboxModule,
+      ],
       declarations: [SearchBarComponent, MockTranslatePipe, MockTrunctePipe],
       providers: [
         {
@@ -211,7 +222,7 @@ describe('Search bar component', () => {
       'getWidth'
     ).and.returnValue(766);
     expect(component.isMobileViewActive()).toBe(true);
-    windowWidthSpy.and.returnValue(1000);
+    windowWidthSpy.and.returnValue(1200);
     expect(component.isMobileViewActive()).toBe(false);
   });
 
@@ -518,4 +529,50 @@ describe('Search bar component', () => {
     // @ts-ignore
     component.openSubmenu(null, null);
   });
+
+  it('should open search bar filters modal and handle filter change', fakeAsync(() => {
+    const ngbModal = TestBed.inject(NgbModal);
+    spyOn(component, 'updateSelectionDetails');
+    spyOn(component, 'onSearchQueryChangeExec');
+
+    const mockModalRef = {
+      componentInstance: {
+        SelectionDetails: null,
+        filterOption: '',
+      },
+      result: Promise.resolve({
+        filterType: 'categories',
+        updatedFilters: {
+          ...selectionDetailsStub,
+          categories: {
+            ...selectionDetailsStub.categories,
+            selections: {id: false, id_2: true, id_3: false},
+          },
+        },
+      }),
+    } as unknown as NgbModalRef;
+
+    spyOn(ngbModal, 'open').and.returnValue(mockModalRef);
+
+    component.selectionDetails = cloneDeep(selectionDetailsStub);
+    component.openFilterModal('categories');
+
+    expect(ngbModal.open).toHaveBeenCalledWith(SearchBarFiltersModalComponent, {
+      backdrop: 'static',
+      size: 'lg',
+    });
+
+    expect(mockModalRef.componentInstance.filterOption).toBe('categories');
+    expect(mockModalRef.componentInstance.selectionDetails).toEqual(
+      cloneDeep(selectionDetailsStub)
+    );
+
+    flushMicrotasks();
+
+    expect(component.selectionDetails.categories.selections.id).toBeFalse();
+    expect(component.selectionDetails.categories.selections.id_2).toBeTrue();
+    expect(component.selectionDetails.categories.selections.id_3).toBeFalse();
+    expect(component.updateSelectionDetails).toHaveBeenCalledWith('categories');
+    expect(component.onSearchQueryChangeExec).toHaveBeenCalled();
+  }));
 });

@@ -17,7 +17,7 @@
  */
 
 import {Component, Input, OnInit} from '@angular/core';
-
+import {AppConstants} from 'app.constants';
 import {StorySummary} from 'domain/story/story-summary.model';
 import {
   I18nLanguageCodeService,
@@ -27,7 +27,9 @@ import {WindowDimensionsService} from 'services/contextual/window-dimensions.ser
 
 import './topic-viewer-stories-list.component.css';
 import {UrlInterpolationService} from 'domain/utilities/url-interpolation.service';
-
+import {AccessValidationBackendApiService} from 'pages/oppia-root/routing/access-validation-backend-api.service';
+import {AlertsService} from 'services/alerts.service';
+import {ClassroomBackendApiService} from 'domain/classroom/classroom-backend-api.service';
 @Component({
   selector: 'stories-list',
   templateUrl: './topic-viewer-stories-list.component.html',
@@ -47,11 +49,15 @@ export class StoriesListComponent implements OnInit {
   topicNameTranslationKey!: string;
   topicDescTranslationKey!: string;
   classroomNameTranslationKey!: string;
+  publicClassroomsCount!: number;
 
   constructor(
     private i18nLanguageCodeService: I18nLanguageCodeService,
     private windowDimensionsService: WindowDimensionsService,
-    private urlInterpolationService: UrlInterpolationService
+    private urlInterpolationService: UrlInterpolationService,
+    private accessValidationBackendApiService: AccessValidationBackendApiService,
+    private alertsService: AlertsService,
+    private classroomBackendApiService: ClassroomBackendApiService
   ) {}
 
   ngOnInit(): void {
@@ -72,6 +78,35 @@ export class StoriesListComponent implements OnInit {
           this.classroomName
         ).name;
     }
+    this.accessValidationBackendApiService
+      .validateAccessToClassroomPage(this.classroomUrlFragment)
+      .then(
+        () => {
+          this.classroomBackendApiService
+            .fetchClassroomDataAsync(this.classroomUrlFragment)
+            .then(
+              classroomData => {
+                this.publicClassroomsCount =
+                  classroomData.getPublicClassroomsCount();
+              },
+              errorResponse => {
+                if (
+                  AppConstants.FATAL_ERROR_CODES.indexOf(
+                    errorResponse.status
+                  ) !== -1
+                ) {
+                  this.alertsService.addWarning('Failed to get classroom data');
+                }
+              }
+            );
+        },
+        err => {
+          // Note to developers:
+          // This callback is triggered when the provided classroom does not exist,
+          // this will raise page not found exception.
+          // No further action is needed.
+        }
+      );
   }
 
   isHackyTopicNameTranslationDisplayed(): boolean {

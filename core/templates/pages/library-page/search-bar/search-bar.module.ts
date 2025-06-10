@@ -24,6 +24,8 @@ import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 
 import {SearchBarComponent} from 'pages/library-page/search-bar/search-bar.component';
 import {StringUtilityPipesModule} from 'filters/string-utility-filters/string-utility-pipes.module';
+import {MaterialModule} from 'modules/material.module';
+import {SearchBarFiltersModalComponent} from './search-bar-filters-modal.component';
 
 @NgModule({
   imports: [
@@ -32,9 +34,10 @@ import {StringUtilityPipesModule} from 'filters/string-utility-filters/string-ut
     NgbModule,
     StringUtilityPipesModule,
     TranslateModule,
+    MaterialModule,
   ],
-  declarations: [SearchBarComponent],
-  entryComponents: [SearchBarComponent],
+  declarations: [SearchBarComponent, SearchBarFiltersModalComponent],
+  entryComponents: [SearchBarComponent, SearchBarFiltersModalComponent],
   exports: [SearchBarComponent],
 })
 export class SearchBarModule {}

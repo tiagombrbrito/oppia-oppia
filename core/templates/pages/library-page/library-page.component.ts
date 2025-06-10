@@ -570,6 +570,10 @@ export class LibraryPageComponent {
     );
   }
 
+  isLanguageRTL(): boolean {
+    return this.i18nLanguageCodeService.isCurrentLanguageRTL();
+  }
+
   ngOnDestroy(): void {
     if (this.translateSubscription) {
       this.translateSubscription.unsubscribe();

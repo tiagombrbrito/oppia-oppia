@@ -3,7 +3,8 @@
     <mat-card class="oppia-page-card oppia-long-text">
       <div class="oppia-topic-viewer-breadcrumbs">
         <div class="desktop-breadcrumbs">
-          <a href="/">{{ 'I18N_TOPNAV_HOME' | translate }}</a>
+          <a *ngIf="publicClassroomsCount <= 1" href="/">{{ 'I18N_TOPNAV_HOME' | translate }}</a>
+          <a *ngIf="publicClassroomsCount > 1" href="/learn">{{ 'I18N_CLASSROOM_TOP_NAV_CLASSROOMS_TEXT' | translate }}</a>
           <div class="classroom-name-container" *ngIf="classroomName">
             <i class="fa fa-angle-right" *ngIf="!isLanguageRTL()"></i>
             <i class="fa fa-angle-left" *ngIf="isLanguageRTL()"></i>

@@ -23,6 +23,7 @@ import {I18nLanguageCodeService} from 'services/i18n-language-code.service';
 import {MockTranslatePipe} from 'tests/unit-test-utils';
 import {StoriesListComponent} from './topic-viewer-stories-list.component';
 import {UrlInterpolationService} from 'domain/utilities/url-interpolation.service';
+import {HttpClientTestingModule} from '@angular/common/http/testing';
 
 describe('Topic Viewer Stories List Component', () => {
   let component: StoriesListComponent;
@@ -33,6 +34,7 @@ describe('Topic Viewer Stories List Component', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
+      imports: [HttpClientTestingModule],
       declarations: [StoriesListComponent, MockTranslatePipe],
       providers: [UrlInterpolationService],
       schemas: [NO_ERRORS_SCHEMA],

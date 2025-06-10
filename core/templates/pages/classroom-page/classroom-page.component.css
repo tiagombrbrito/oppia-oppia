@@ -306,6 +306,7 @@
   .classroom-content-container .classroom-content .topic-tiles-container {
     align-items: center;
     flex-direction: row;
+    padding-left: 1em;
   }
 
   .breadcrumbs-container .classroom-information-container {
@@ -330,7 +331,6 @@
 
   .classroom-content-container {
     position: relative;
-    right: 6px;
   }
 
   .classroom-content-container .classroom-content .topic-tiles-container .oppia-topic-summary-tile {

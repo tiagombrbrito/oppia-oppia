@@ -7,7 +7,9 @@
     </div>
     <div class="classroom-breadcrumbs">
       <div class="desktop-breadcrumbs">
-        <a *ngIf="publicClassroomsCount === 1" href="/">{{ 'I18N_TOPNAV_HOME' | translate }}</a>
+        <a href="/">{{ 'I18N_TOPNAV_HOME' | translate }}</a>
+        <i class="fa fa-angle-right" *ngIf="!isLanguageRTL() && publicClassroomsCount > 1"></i>
+        <i class="fa fa-angle-left" *ngIf="isLanguageRTL() && publicClassroomsCount > 1"></i>
         <a *ngIf="publicClassroomsCount > 1" href="/learn">{{ 'I18N_CLASSROOM_TOP_NAV_CLASSROOMS_TEXT' | translate }}</a>
         <i class="fa fa-angle-right" *ngIf="!isLanguageRTL()"></i>
         <i class="fa fa-angle-left" *ngIf="isLanguageRTL()"></i>
